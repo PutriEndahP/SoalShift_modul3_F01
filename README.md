@@ -107,6 +107,10 @@ Dengan Syarat :
 
 * Boleh menggunakan system
 
+### JAwaban
+
+### Penjelasan
+
 ## Soal 5
 Angga, adik Jiwang akan berulang tahun yang ke sembilan pada tanggal 6 April besok. Karena lupa menabung, Jiwang tidak mempunyai uang sepeserpun untuk membelikan Angga kado. Kamu sebagai sahabat Jiwang ingin membantu Jiwang membahagiakan adiknya sehingga kamu menawarkan bantuan membuatkan permainan komputer sederhana menggunakan program C. Jiwang sangat menyukai idemu tersebut. Berikut permainan yang Jiwang minta.
 
@@ -143,27 +147,16 @@ B. Program terdiri dari 3 scene yaitu standby, battle, dan shop.
 C. Pada saat berada di standby scene, program selalu menampilkan health status, hunger status, hygiene status, stok makanan tersisa, dan juga status kamar mandi (“Bath is ready” jika bisa digunakan, “Bath will be ready in [bath cooldown]s” jika sedang cooldown). Selain itu program selalu menampilkan 5 menu, yaitu memberi makan, mandi, battle, shop, dan exit. Contoh :
 
     Standby Mode
-    
     Health : [health status]
-    
     Hunger : [hunger status]
-    
     Hygiene : [hygiene status]
-    
     Food left : [your food stock]
-    
     Bath will be ready in [cooldown]s
-    
     Choices
-    
     1. Eat
-    
-    2. Bath
-    
+    2. Battle
     3. Battle
-    
     4. Shop
-
     5. Exit
 
 D. Pada saat berada di battle scene, program selalu menampilkan health status milik pemain dan monster NPC. Selain itu, program selalu menampilkan 2 menu yaitu serang atau lari. Contoh :
@@ -193,3 +186,8 @@ F. Pada program penjual, program selalu menampilkan food stock toko. Selain itu,
     2. Exit
 
 G. Pastikan terminal hanya mendisplay status detik ini sesuai scene terkait (hint: menggunakan system(“clear”))
+
+### Jawaban
+
+### Penjelasan
+
