@@ -44,7 +44,7 @@ f) Server pembeli akan mengirimkan info ke client yang terhubung dengannya apaka
 
 g) Server penjual akan mencetak stok saat ini setiap 5 detik sekali
 
-h) <B> Menggunakan thread, socket, shared memory <B>
+h) <b> Menggunakan thread, socket, shared memory <b>
 
 Jawaban 
 
