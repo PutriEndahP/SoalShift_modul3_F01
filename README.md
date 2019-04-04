@@ -15,20 +15,35 @@ Contoh:
     
     5! = 120
 
+Jawaban
+
+Penjelasan
+
 ## Soal 2
 Pada suatu hari ada orang yang ingin berjualan 1 jenis barang secara private, dia memintamu membuat program C dengan spesifikasi sebagai berikut:
-Terdapat 2 server: server penjual dan server pembeli
-1 server hanya bisa terkoneksi dengan 1 client
-Server penjual dan server pembeli memiliki stok barang yang selalu sama
-Client yang terkoneksi ke server penjual hanya bisa menambah stok
-Cara menambah stok: client yang terkoneksi ke server penjual mengirim string “tambah” ke server lalu stok bertambah 1
-Client yang terkoneksi ke server pembeli hanya bisa mengurangi stok
-Cara mengurangi stok: client yang terkoneksi ke server pembeli mengirim string “beli” ke server lalu stok berkurang 1
-Server pembeli akan mengirimkan info ke client yang terhubung dengannya apakah transaksi berhasil atau tidak berdasarkan ketersediaan stok
-Jika stok habis maka client yang terkoneksi ke server pembeli akan mencetak “transaksi gagal”
-Jika stok masih ada maka client yang terkoneksi ke server pembeli akan mencetak “transaksi berhasil”
-Server penjual akan mencetak stok saat ini setiap 5 detik sekali
-Menggunakan thread, socket, shared memory
+
+a) Terdapat 2 server: server penjual dan server pembeli
+
+b) 1 server hanya bisa terkoneksi dengan 1 client
+
+c) Server penjual dan server pembeli memiliki stok barang yang selalu sama
+
+d) Client yang terkoneksi ke server penjual hanya bisa menambah stok
+
+    * Cara menambah stok: client yang terkoneksi ke server penjual mengirim string “tambah” ke server lalu stok bertambah 1
+
+e) Client yang terkoneksi ke server pembeli hanya bisa mengurangi stok
+
+    * Cara mengurangi stok: client yang terkoneksi ke server pembeli mengirim string “beli” ke server lalu stok berkurang 1
+
+f) Server pembeli akan mengirimkan info ke client yang terhubung dengannya apakah transaksi berhasil atau tidak berdasarkan ketersediaan stok
+
+    * Jika stok habis maka client yang terkoneksi ke server pembeli akan mencetak “transaksi gagal”
+
+    * Jika stok masih ada maka client yang terkoneksi ke server pembeli akan mencetak “transaksi berhasil”
+g) Server penjual akan mencetak stok saat ini setiap 5 detik sekali
+
+h) <B> Menggunakan thread, socket, shared memory
 
     
 ## Soal 3
