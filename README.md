@@ -30,22 +30,26 @@ c) Server penjual dan server pembeli memiliki stok barang yang selalu sama
 
 d) Client yang terkoneksi ke server penjual hanya bisa menambah stok
 
-    * Cara menambah stok: client yang terkoneksi ke server penjual mengirim string “tambah” ke server lalu stok bertambah 1
+ * Cara menambah stok: client yang terkoneksi ke server penjual mengirim string “tambah” ke server lalu stok bertambah 1
 
 e) Client yang terkoneksi ke server pembeli hanya bisa mengurangi stok
 
-    * Cara mengurangi stok: client yang terkoneksi ke server pembeli mengirim string “beli” ke server lalu stok berkurang 1
+  * Cara mengurangi stok: client yang terkoneksi ke server pembeli mengirim string “beli” ke server lalu stok berkurang 1
 
 f) Server pembeli akan mengirimkan info ke client yang terhubung dengannya apakah transaksi berhasil atau tidak berdasarkan ketersediaan stok
 
-    * Jika stok habis maka client yang terkoneksi ke server pembeli akan mencetak “transaksi gagal”
+  * Jika stok habis maka client yang terkoneksi ke server pembeli akan mencetak “transaksi gagal”
 
-    * Jika stok masih ada maka client yang terkoneksi ke server pembeli akan mencetak “transaksi berhasil”
+  * Jika stok masih ada maka client yang terkoneksi ke server pembeli akan mencetak “transaksi berhasil”
+
 g) Server penjual akan mencetak stok saat ini setiap 5 detik sekali
 
 h) <B> Menggunakan thread, socket, shared memory
 
-    
+Jawaban 
+
+Penjelasan
+
 ## Soal 3
 Agmal dan Iraj merupakan 2 sahabat yang sedang kuliah dan hidup satu kostan, sayangnya mereka mempunyai gaya hidup yang berkebalikan, dimana Iraj merupakan laki-laki yang sangat sehat,rajin berolahraga dan bangun tidak pernah kesiangan sedangkan Agmal hampir menghabiskan setengah umur hidupnya hanya untuk tidur dan ‘ngoding’. Dikarenakan mereka sahabat yang baik, Agmal dan iraj sama-sama ingin membuat satu sama lain mengikuti gaya hidup mereka dengan cara membuat Iraj sering tidur seperti Agmal, atau membuat Agmal selalu bangun pagi seperti Iraj. Buatlah suatu program C untuk menggambarkan kehidupan mereka dengan spesifikasi sebagai berikut:
 Terdapat 2 karakter Agmal dan Iraj
