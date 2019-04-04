@@ -55,6 +55,7 @@ Contoh:
 	}
 
 ### Penjelasan
+Di line 41 terdapat parameter yang digunakan untuk menampung argumen. Line 42-43 untuk mengubah argumen ke dalam bentuk tipe data int. Line 44 digunakan untuk menyortir argumen dari kecil ke yang terbesar melalui fungsi sort yang terdapat pada line 27-29. Di line 46 terdapat looping yang digunakan untuk mengakses fungsi fakt untuk perhitungan faktorial dan terdapat thread join yang digunakan agar proses berjalan bergantian.
 
 ## Soal 2
 Pada suatu hari ada orang yang ingin berjualan 1 jenis barang secara private, dia memintamu membuat program C dengan spesifikasi sebagai berikut:
