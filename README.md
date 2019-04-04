@@ -166,30 +166,30 @@ C. Pada saat berada di standby scene, program selalu menampilkan health status, 
 
     5. Exit
 
-Pada saat berada di battle scene, program selalu menampilkan health status milik pemain dan monster NPC. Selain itu, program selalu menampilkan 2 menu yaitu serang atau lari. Contoh :
+D. Pada saat berada di battle scene, program selalu menampilkan health status milik pemain dan monster NPC. Selain itu, program selalu menampilkan 2 menu yaitu serang atau lari. Contoh :
 
-Battle Mode
-Monster’s Health : [health status]
-Enemy’s Health : [enemy health status]
-Choices
-Attack
-Run
+    Battle Mode
+    Monster’s Health : [health status]
+    Enemy’s Health : [enemy health status]
+    Choices
+    1. Attack
+    2. Run
 
-Pada saat berada di shop scene versi pembeli, program selalu menampilkan food stock toko dan milik pemain. Selain itu, program selalu menampilkan 2 menu yaitu beli dan kembali ke standby scene. Contoh :
+E. Pada saat berada di shop scene versi pembeli, program selalu menampilkan food stock toko dan milik pemain. Selain itu, program selalu menampilkan 2 menu yaitu beli dan kembali ke standby scene. Contoh :
 
         Shop Mode
         Shop food stock : [shop food stock]
         Your food stock : [your food stock]
         Choices
-Buy
-Back
+        1. Buy
+        2. Back
 
-Pada program penjual, program selalu menampilkan food stock toko. Selain itu, program juga menampilkan 2 menu yaitu restock dan exit. Contoh :
+F. Pada program penjual, program selalu menampilkan food stock toko. Selain itu, program juga menampilkan 2 menu yaitu restock dan exit. Contoh :
 
-Shop
-Food stock : [shop food stock]
-Choices
-Restock
-Exit
+    Shop
+    Food stock : [shop food stock]
+    Choices
+    1. Restock
+    2. Exit
 
-Pastikan terminal hanya mendisplay status detik ini sesuai scene terkait (hint: menggunakan system(“clear”))
+G. Pastikan terminal hanya mendisplay status detik ini sesuai scene terkait (hint: menggunakan system(“clear”))
