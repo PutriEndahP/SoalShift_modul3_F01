@@ -660,4 +660,4 @@ G. Pastikan terminal hanya mendisplay status detik ini sesuai scene terkait (hin
 ### Jawaban
 
 ### Penjelasan
-
+Jawaban masih belum rampung, masih dalam pengerjaan. Program saya masih tampilan dan mampu mendeteksi input berupa key press
