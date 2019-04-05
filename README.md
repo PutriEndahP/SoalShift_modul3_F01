@@ -344,7 +344,83 @@ int main(void) {
 ```
 
 ### Penjelasan
+* Pertama-tama deklarasikan dahulu variabel variabel yang akan dibutuhkan untuk fungsi fungsi yang digunakan, seperti :
+```javascript
+// thread id
+pthread_t tid1, tid2, tid3, tid4, tid5, tid6;
 
+// main status
+int WakeUpStatus= 0;
+int SpiritStatus= 100;
+
+// status fungsi dipanggil atau tidak
+int func_allstatus=0;
+int func_ayobangun=0;
+int func_ayotidur=0;
+
+// function counter
+int count_ayobangun=0;
+int count_ayotidur=0;
+
+// apakah function bisa diakses atau tidak
+int status_func_ayotidur=1;
+int status_func_ayobangun=1;
+
+// timer
+//int timer_ayobangun=0;
+//int timer_ayotidur=0;
+
+// cek status program
+int system_on= 1;
+```
+* Program akan berjalan selama syarat  ```while(WakeUpStatus < 100 && SpiritStatus > 0 && system_on)``` terpenuhi
+
+* Kami menggunaan 6 thread, satu thread untuk setiap 1 fungsi yaitu thread untuk main system, all status, ayo bangun, ayo tidur, disable ayo bangun dan disable ayo tidur.
+
+* Kita masukkan masing-masing string input ke dalam variabel, seperti pada source code berikut ini :
+```javascript
+  char argv1[]="All Status";
+  char argv2[]="Agmal Ayo Bangun";
+  char argv3[]="Iraj Ayo Tidur";
+```
+* Kemudian masukkan inputnya, bandingkan input yang di masukkan apakah sama dengan salah satu yang ada di variabel yang sudah di deklarasikan sebelumnya, misalnya
+```javascript
+ if(strcmp(argv, argv1) == 0){
+      func_allstatus=1;
+      sleep(0.01);
+      continue;
+```
+misalnya yang di inputkan itu sama dengan argv[1] yang berisi string "all status", maka fungsi func_allstatus di panggil, begitu seterusnya.
+
+* jika terdapat kondisi seperti berikut ini 
+```if (WakeUpStatus >= 100) printf("Agmal terbangun, mereka bangun pagi dan berolahraga\n");
+  else if (SpiritStatus <= 0) printf("Iraj ikut tidur, dan bangun kesiangan bersama Agmal\n");
+  else printf("System error\n");
+ 
+  system_on=0;\n");
+  ``` 
+maka apabila WakeUpStatus nya sudah lebih dari 100 maka akan mencetak tulisan "Agmal terbangun, mereka bangun pagi dan berolahraga" tetapi jika SpiritStatus nya kurang dari atau sama dengan 0 maka mencetak "Iraj ikut tidur, dan bangun kesiangan bersama Agmal"    
+kemudian system akan mati
+
+* Kemudian di masukkan fungsi fungsi lainnya yang dibutuhkan.
+
+* Buat ke enam thread yang akan di butuhkan, dan joinkan thread nya dengan syntax berikut ini :
+```javascript
+pthread_create(&(tid1), NULL, ayotidur, NULL);
+  pthread_create(&(tid2), NULL, ayobangun, NULL);
+  pthread_create(&(tid3), NULL, all_status, NULL);
+  pthread_create(&(tid4), NULL, disable_ayobangun, NULL);
+  pthread_create(&(tid5), NULL, disable_ayotidur, NULL);
+  pthread_create(&(tid6), NULL, mainsystem, NULL);
+
+  pthread_join(tid1, NULL);
+  pthread_join(tid2, NULL);
+  pthread_join(tid3, NULL);
+  pthread_join(tid4, NULL);
+  pthread_join(tid5, NULL);
+  pthread_join(tid6, NULL);
+
+```
 ## Soal 4
 Buatlah sebuah program C dimana dapat menyimpan list proses yang sedang berjalan (ps -aux) maksimal 10 list proses. Dimana awalnya list proses disimpan dalam di 2 file ekstensi .txt yaitu  SimpanProses1.txt di direktori /home/Document/FolderProses1 dan SimpanProses2.txt di direktori /home/Document/FolderProses2 , setelah itu masing2 file di  kompres zip dengan format nama file KompresProses1.zip dan KompresProses2.zip dan file SimpanProses1.txt dan SimpanProses2.txt akan otomatis terhapus, setelah itu program akan menunggu selama 15 detik lalu program akan mengekstrak kembali file KompresProses1.zip dan KompresProses2.zip 
 Dengan Syarat : 
