@@ -532,6 +532,54 @@ int main(void){
 
 ### Penjelasan
 
+* Dalam kasus ini kami menggunakan 2 thread yaitu satu untuk folder proses 1 dan satunya lagi untuk folder proses 2.
+
+* Source code pada main berarti kami melakukan perulangan untuk membuat thread, dalam kasus ini kedua thread ini meng akses satu alamat poiter yang sama. Sehingga pada source code di main seperti berikut :
+```
+int max_thread=2, i;
+  pthread_t tid[max_thread];
+
+  // buat thread sejumlah max thread, parsing i sebagai id
+  for(i=1; i<=max_thread; i++){
+    pthread_create(&tid[i], NULL, main_system, &i);
+    // butuh break sejenak buat menyimpan parsing parameter ke local variable tiap thread
+    sleep(0.000000000000000001);
+```
+berarti kita meng inisialisasi maksimal thread yaitu 2, dengan i = 1, kemudian ada sleep karena kedua thread ini akan mengakses satu alamat poiter yang sama, maka apabila perulangan kedua i nya berganti menjadi 2, maka perulangan pertama akan ikut menjadi dua. Alhasil variabel local thread yaitu 2 dan 2, oleh karena itu perlu diberi sedikit sleep agar masing-masing thread bisa menyimpan parsing ke variabel local masing-masing thread.
+
+* Yang pertama dilakukan yaitu men deklarasikan variabel-variabel yang akan digunakan nantinya, seperti :
+```
+char dir_name[100];
+  char file_name[50];
+  char zip_name[50];
+  sprintf(dir_name, "~/Documents/FolderProses%d", id);
+  sprintf(file_name, "SimpanProses%d.txt", id);
+  sprintf(zip_name, "KompresProses%d.zip", id);
+  //printf("%s\n%s\n%s\n", dir_name, file_name, zip_name);
+```
+
+* Kemudian awalnya kita membuat fungsi command delete yang berfungsi agar saat kita menjalankan program untuk kedua kalinya, maka folder sebelumnya akan terhapus terlebih dahulu, jadi tidak perlu menghapus manual, dengan menggunakan syntax berikut ini :
+```
+char command_delete0[100];
+  sprintf(command_delete0, "rm -rf %s &> /dev/null", dir_name);
+  // printf("%s\n", command_delete0);
+  printf("menghapus %s \n", dir_name);
+  system(command_delete0);
+```
+/dev/null ini digunakan agar jika terjadi error atau apapun tidak terlihat di terminal.
+
+* Buat folder untuk menympan file zip sesuai dengan perintah yang ada di soal dengan syntax :
+```
+ char command0[100];
+  sprintf(command0, "mkdir -p %s", dir_name);
+  // printf("%s\n", command0);
+  printf("membuat folder %s\n", dir_name);
+  system(command0);
+```
+kami menggunakan system untuk memanggil suatu fungsi agar lebih mudah.
+
+* Kemudian kami menggunakan fungsi-fungsi seperti biasa dengan struktur yang sama untuk fungsi lainnya dengan tetap menggunakan system. Program akan berhenti selama 15 detik kemudian akan melanjutkan mengerjakan fungsi berikutnya yaitu unzip.
+
 ## Soal 5
 Angga, adik Jiwang akan berulang tahun yang ke sembilan pada tanggal 6 April besok. Karena lupa menabung, Jiwang tidak mempunyai uang sepeserpun untuk membelikan Angga kado. Kamu sebagai sahabat Jiwang ingin membantu Jiwang membahagiakan adiknya sehingga kamu menawarkan bantuan membuatkan permainan komputer sederhana menggunakan program C. Jiwang sangat menyukai idemu tersebut. Berikut permainan yang Jiwang minta.
 
