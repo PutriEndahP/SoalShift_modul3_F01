@@ -393,7 +393,8 @@ int system_on= 1;
 misalnya yang di inputkan itu sama dengan argv[1] yang berisi string "all status", maka fungsi func_allstatus di panggil, begitu seterusnya.
 
 * jika terdapat kondisi seperti berikut ini 
-```if (WakeUpStatus >= 100) printf("Agmal terbangun, mereka bangun pagi dan berolahraga\n");
+```javascript
+  if (WakeUpStatus >= 100) printf("Agmal terbangun, mereka bangun pagi dan berolahraga\n");
   else if (SpiritStatus <= 0) printf("Iraj ikut tidur, dan bangun kesiangan bersama Agmal\n");
   else printf("System error\n");
  
@@ -535,7 +536,7 @@ int main(void){
 * Dalam kasus ini kami menggunakan 2 thread yaitu satu untuk folder proses 1 dan satunya lagi untuk folder proses 2.
 
 * Source code pada main berarti kami melakukan perulangan untuk membuat thread, dalam kasus ini kedua thread ini meng akses satu alamat poiter yang sama. Sehingga pada source code di main seperti berikut :
-```
+```javascript
 int max_thread=2, i;
   pthread_t tid[max_thread];
 
@@ -548,7 +549,7 @@ int max_thread=2, i;
 berarti kita meng inisialisasi maksimal thread yaitu 2, dengan i = 1, kemudian ada sleep karena kedua thread ini akan mengakses satu alamat poiter yang sama, maka apabila perulangan kedua i nya berganti menjadi 2, maka perulangan pertama akan ikut menjadi dua. Alhasil variabel local thread yaitu 2 dan 2, oleh karena itu perlu diberi sedikit sleep agar masing-masing thread bisa menyimpan parsing ke variabel local masing-masing thread.
 
 * Yang pertama dilakukan yaitu men deklarasikan variabel-variabel yang akan digunakan nantinya, seperti :
-```
+```javascript
 char dir_name[100];
   char file_name[50];
   char zip_name[50];
@@ -559,7 +560,7 @@ char dir_name[100];
 ```
 
 * Kemudian awalnya kita membuat fungsi command delete yang berfungsi agar saat kita menjalankan program untuk kedua kalinya, maka folder sebelumnya akan terhapus terlebih dahulu, jadi tidak perlu menghapus manual, dengan menggunakan syntax berikut ini :
-```
+```javascript
 char command_delete0[100];
   sprintf(command_delete0, "rm -rf %s &> /dev/null", dir_name);
   // printf("%s\n", command_delete0);
@@ -569,7 +570,7 @@ char command_delete0[100];
 /dev/null ini digunakan agar jika terjadi error atau apapun tidak terlihat di terminal.
 
 * Buat folder untuk menympan file zip sesuai dengan perintah yang ada di soal dengan syntax :
-```
+```javascript
  char command0[100];
   sprintf(command0, "mkdir -p %s", dir_name);
   // printf("%s\n", command0);
