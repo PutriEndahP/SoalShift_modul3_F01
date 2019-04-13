@@ -1905,61 +1905,61 @@ Kodingan 2 soal5pembeli.c
 #### Penjelasan
 pada program pemain/pembeli kami menggunakan 2 thread untuk display game dan input
 
-	iret1 = pthread_create( &thread1, NULL, display, NULL); //membuat thread pertama
-    if(iret1) //jika eror
-    {
-        fprintf(stderr,"Error - pthread_create() return code: %d\n",iret1);
-        exit(EXIT_FAILURE);
-    }
+		iret1 = pthread_create( &thread1, NULL, display, NULL); //membuat thread pertama
+	    if(iret1) //jika eror
+	    {
+		fprintf(stderr,"Error - pthread_create() return code: %d\n",iret1);
+		exit(EXIT_FAILURE);
+	    }
 
-	iret2 = pthread_create( &thread2, NULL, inputgame, NULL);//membuat thread kedua
-    if(iret2)//jika gagal
-    {
-        fprintf(stderr,"Error - pthread_create() return code: %d\n",iret2);
-        exit(EXIT_FAILURE);
-    }
+		iret2 = pthread_create( &thread2, NULL, inputgame, NULL);//membuat thread kedua
+	    if(iret2)//jika gagal
+	    {
+		fprintf(stderr,"Error - pthread_create() return code: %d\n",iret2);
+		exit(EXIT_FAILURE);
+	    }
 
-    untuk mengurangi hunger_status tiap 10 detik kami menggunaka :
+ untuk mengurangi hunger_status tiap 10 detik kami menggunaka :
 
-if(time_hunger == 10){
-			time_hunger = 0;
-			hunger_status -= 5;
-			if(hunger_status < 1){
-				lose = 1;
-				printf("game over\n%s mati kelaparan\n", nama_monster);
-				
-				return 0;
+	if(time_hunger == 10){
+				time_hunger = 0;
+				hunger_status -= 5;
+				if(hunger_status < 1){
+					lose = 1;
+					printf("game over\n%s mati kelaparan\n", nama_monster);
+
+					return 0;
+				}
 			}
-		}
 
-    untuk mengurangi hygiene_status tiap 30 detik kami menggunakan :
+untuk mengurangi hygiene_status tiap 30 detik kami menggunakan :
 
-if(time_hygiene == 30){
-			time_hygiene = 0;
-			hygiene_status -= 10;
-			if(hunger_status < 1){
-				lose = 1;
-				printf("game over\n%s mati membusuk karena tidak pernah mandi\n", nama_monster);
-			
-				return 0;
+	if(time_hygiene == 30){
+				time_hygiene = 0;
+				hygiene_status -= 10;
+				if(hunger_status < 1){
+					lose = 1;
+					printf("game over\n%s mati membusuk karena tidak pernah mandi\n", nama_monster);
+
+					return 0;
+				}
 			}
-		}
 
-    untuk menambah health_status tiap 10 detik kami menggunakan :
+untuk menambah health_status tiap 10 detik kami menggunakan :
 
-if(time_health == 10){
-			time_health = 0;
-			if(st == 1){
-				health_status += 5;
+	if(time_health == 10){
+				time_health = 0;
+				if(st == 1){
+					health_status += 5;
+				}
+				if(health_status > 300){health_status = 300;}
 			}
-			if(health_status > 300){health_status = 300;}
-		}
 
--agar ketika battle hygiene_status dan hunger_status tidak berkurang maka kami menggunakan :
+	-agar ketika battle hygiene_status dan hunger_status tidak berkurang maka kami menggunakan :
 
-if(ba == 1){
-			time_hunger = 0;time_hygiene = 0;time_health = 0;
-		}
+	if(ba == 1){
+				time_hunger = 0;time_hygiene = 0;time_health = 0;
+			}
 
 dimana ba merupakan variable yang digunakan untuk menandai battle. ba = 1 ketika sedang scene battle
 
@@ -1982,105 +1982,104 @@ dimana ba merupakan variable yang digunakan untuk menandai battle. ba = 1 ketika
 			printf("3. Battle\n");
 			printf("4. Shop\n");
 			printf("5. Exit\n");
+program akan berjalan sesuai input :
 
-    program akan berjalan sesuai input :
-
-if(input == '1'){
-				if(food>0){
-					food--;
-					hunger_status += 15;
-					if(hunger_status > 200){hunger_status = 200;}
+	if(input == '1'){
+					if(food>0){
+						food--;
+						hunger_status += 15;
+						if(hunger_status > 200){hunger_status = 200;}
+					}
+				}else if(input == '2'){
+					if(bath == 0){
+						hygiene_status += 30;
+						bath = 20;
+						if(hygiene_status > 100){hygiene_status = 100;}
+					}
+				}else if(input =='3'){
+					sh = 0;
+					st = 0;
+					ba = 1;
+					lawan = 100;
+				}else if(input == '4'){
+					sh = 1;
+					st = 0;
+					ba = 0;
+				}else if(input == '5'){
+					keluar =1;
+					return 0;
 				}
+
+untuk tampilan scene battle dan tugas berdaasarkan input
+
+	printf("Battle Mode");
+				printf("Monster's Health : %d\n", health_status);
+				printf("Enemy's Health : %d\n", lawan);
+				printf("Choices\n");
+				printf("1. Attack\n");
+				printf("2. Run\n");
+				if(input == '1'){
+					health_status -= 20;
+					lawan -= 20;
+					if(health_status < 1){
+						//("game over\n%s mati pada saat tawuran\n", nama_monster);
+						sh = 0; st = 1; ba = 0;
+						health_status =0 ;
+					}
+					if(lawan < 1){
+						sh = 0; st = 1; ba = 0;
+					}
+				}else if(input == '2'){
+					sh = 0; st = 1; ba = 0;
+				}
+
+untuk tampilan scene shop dan tugas berdaasarkan input
+
+	if(sh == 1){
+				printf("Shop Mode\n");
+				printf("Shop food stock : %d\n", *food_stock);
+				printf("Your food stock : %d\n", food);
+				printf("Choices\n");
+				printf("1. Buy\n");
+				printf("2. Back\n");
+				if(input == '1'){
+					if(*food_stock > 0){
+						food++;
+						*food_stock = *food_stock - 1;
+					}
+				}else if(input == '2'){
+					sh = 0; st = 1; ba = 0;
+				}
+			}
+
+untk shop food stock kami menggunakan shared memory agar dapat di akses pada program penjual juga
+
+	int shmid = shmget(key, sizeof(int), IPC_CREAT | 0666);
+		food_stock = shmat(shmid, NULL, 0);
+
+thread untuk input
+
+	void *inputgame(void *ptr){
+		while(1){
+			if(lose || keluar ){break;}
+			input = getch();		
+		}
+	}
+
+pada program penjual sama seperti program pembeli/pemain menggunak 2 thread yaitu display dan input
+yang membedakan hanya isi dari thread displaynya yang hanya berisi fitur restock food shop
+
+	system("clear");
+			printf("Shop\n");
+			printf("Food stock : %d\n", *food_stock);
+			printf("Choices\n");
+			printf("1. Restock\n");
+			printf("2. Exit\n");
+			if(input == '1'){
+				*food_stock = *food_stock + 1;
 			}else if(input == '2'){
-				if(bath == 0){
-					hygiene_status += 30;
-					bath = 20;
-					if(hygiene_status > 100){hygiene_status = 100;}
-				}
-			}else if(input =='3'){
-				sh = 0;
-				st = 0;
-				ba = 1;
-				lawan = 100;
-			}else if(input == '4'){
-				sh = 1;
-				st = 0;
-				ba = 0;
-			}else if(input == '5'){
 				keluar =1;
 				return 0;
 			}
-
-    untuk tampilan scene battle dan tugas berdaasarkan input
-
-printf("Battle Mode");
-			printf("Monster's Health : %d\n", health_status);
-			printf("Enemy's Health : %d\n", lawan);
-			printf("Choices\n");
-			printf("1. Attack\n");
-			printf("2. Run\n");
-			if(input == '1'){
-				health_status -= 20;
-				lawan -= 20;
-				if(health_status < 1){
-					//("game over\n%s mati pada saat tawuran\n", nama_monster);
-					sh = 0; st = 1; ba = 0;
-					health_status =0 ;
-				}
-				if(lawan < 1){
-					sh = 0; st = 1; ba = 0;
-				}
-			}else if(input == '2'){
-				sh = 0; st = 1; ba = 0;
-			}
-
-    untuk tampilan scene shop dan tugas berdaasarkan input
-
-if(sh == 1){
-			printf("Shop Mode\n");
-			printf("Shop food stock : %d\n", *food_stock);
-			printf("Your food stock : %d\n", food);
-			printf("Choices\n");
-			printf("1. Buy\n");
-			printf("2. Back\n");
-			if(input == '1'){
-				if(*food_stock > 0){
-					food++;
-					*food_stock = *food_stock - 1;
-				}
-			}else if(input == '2'){
-				sh = 0; st = 1; ba = 0;
-			}
-		}
-
-    untk shop food stock kami menggunakan shared memory agar dapat di akses pada program penjual juga
-
-int shmid = shmget(key, sizeof(int), IPC_CREAT | 0666);
-	food_stock = shmat(shmid, NULL, 0);
-
-    thread untuk input
-
-void *inputgame(void *ptr){
-	while(1){
-		if(lose || keluar ){break;}
-		input = getch();		
-	}
-}
-
-    pada program penjual sama seperti program pembeli/pemain menggunak 2 thread yaitu display dan input
-    yang membedakan hanya isi dari thread displaynya yang hanya berisi fitur restock food shop
-
-system("clear");
-		printf("Shop\n");
-		printf("Food stock : %d\n", *food_stock);
-		printf("Choices\n");
-		printf("1. Restock\n");
-		printf("2. Exit\n");
-		if(input == '1'){
-			*food_stock = *food_stock + 1;
-		}else if(input == '2'){
-			keluar =1;
-			return 0;
-		}
-		input = '0';
-		sleep(1);
+			input = '0';
+			sleep(1);
