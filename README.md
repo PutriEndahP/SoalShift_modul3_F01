@@ -701,6 +701,112 @@ https://www.geeksforgeeks.org/pipe-system-call/
 Buatlah sebuah program multithreading yang dapat menyalin isi file baca.txt ke dalam file salin1.txt. Kemudian menyalin isi dari file salin1.txt ke dalam file salin2.txt!
 
 ##### Jawaban Latihan 1
+```javascript
+#include<pthread.h>
+#include<stdio.h>
+#include<stdlib.h>
+
+int status;
+
+void* t1(void *ptr) // buat fungsi unt menyalin isi dari file baca ke salin1
+{
+        status = 0;
+
+        FILE *baca, *salin1;
+        baca=fopen("baca.txt", "r");
+        salin1=fopen("salin1.txt", "w");
+        char a;
+        while((a=fgetc(baca))!=EOF)
+        fputc(a,salin1);
+
+        fclose(baca);
+        fclose(salin1);
+
+        status = 1;
+        return NULL;
+}
+
+void* t2(void *ptr) // buat fungsi unt menyalin isi dari file salin1 ke salin2
+{
+        while(status != 1)
+        {
+
+        }
+
+        FILE *salin1, *salin2;
+        salin1=fopen("salin1.txt", "r");
+        salin2=fopen("salin2.txt", "w");
+        char a;
+        while((a=fgetc(salin1))!=EOF)
+        fputc(a,salin2);
+
+        fclose(salin1);
+        fclose(salin2);
+}
+
+int main()
+{ // buat thread nya
+        pthread_t tid1, tid2;
+        int sesuatu=0;
+
+//      (void) pthread_create(&tid2,NULL,t2,&sesuatu);
+        (void) pthread_create(&tid1,NULL,t1,&sesuatu);
+        (void) pthread_create(&tid2,NULL,t2,&sesuatu);
+        printf("Thread created\n");
+
+        (void) pthread_join(tid1,NULL);
+        (void) pthread_join(tid2,NULL);
+        return 0;
+}
+```
+##### Penjelasan
+* Disini kami membuat dua thread, thread yang pertama untuk menyalin isi dari file baca ke salin1, sedangkan thread yang kedua untuk menyalin isi dari file salin1 ke salin2.
+
+* Awalnya kita deklarasikan terlebih dahulu variabel bernama status dengan type data integer, yang nantinya akan g=digunakan di while agar program berjalan dengan urutan nya, artinya program kedua tidak akan berjalan sebelum program satu selesai.
+
+* Fungsi pertama yang kita buat yaitu 
+```javascript
+void* t1(void *ptr) // buat fungsi unt menyalin isi dari file baca ke salin1
+{
+        status = 0;
+
+        FILE *baca, *salin1;
+        baca=fopen("baca.txt", "r");
+        salin1=fopen("salin1.txt", "w");
+        char a;
+        while((a=fgetc(baca))!=EOF)
+        fputc(a,salin1);
+
+        fclose(baca);
+        fclose(salin1);
+
+        status = 1;
+        return NULL;
+}
+```
+Berdasarkan program diatas, kita membuka sekaligus membaca dulu file bernama `baca` kemudian isi file baca itu dimasukkan ke variabel bernama baca. Kemuadian buat variabel slain1 yang akan me write file yang bernama salin1.txt. Deklarasikan variabel a dengan tipe data character untuk menampung isi dari baca kemudian dari variabel a itu di masukkan ke file salin1. Yang terakhir, file baca dan salin1 di tutup.
+
+* Fungsi kedua yang kita buat yaitu 
+```javascript
+void* t2(void *ptr) // buat fungsi unt menyalin isi dari file salin1 ke salin2
+{
+        while(status != 1)
+        {
+
+        }
+
+        FILE *salin1, *salin2;
+        salin1=fopen("salin1.txt", "r");
+        salin2=fopen("salin2.txt", "w");
+        char a;
+        while((a=fgetc(salin1))!=EOF)
+        fputc(a,salin2);
+
+        fclose(salin1);
+        fclose(salin2);
+}
+```
+Diawal fungsi kedua ada ```while status !=1``` itu termasuk mutex yang digunakan agar jalan nya program berurutan, sama halnya seperti wait. Disini kita membuka atau nge read file salin1.txt yang dimasukkan ke variabel salin1 kemudian membuat file salin2.txt yang dimasukkan ke dalam variabel salin2. kemudian buat lagi variabel a bertipe data characters dimana a ini berisi isi dari file salin1 yang dibaca sampai end of file kemdudian a di berikan ke file salin2. yang terakhir tutup file salin1 dan salin2.
 
 #### Latihan 2
 Buatlah sebuah program multithreading yang dapat menampilkan bilangan prima dari 1-N. program akan dieksekusi menggunakan thread sebanyak T dimana setiap thread akan melakukan pencarian bilangan prima dengan range N/T (range tiap thread berbeda), kemudian tiap thread akan menampilkan hasilnya.
@@ -716,6 +822,94 @@ Buatlah sebuah program untuk menampilkan file diurutan ketiga dari sebuah direkt
 <!-- diganti soal pipe -->
 
 ##### Jawaban Latihan 3
+```javascript
+#include<stdio.h>
+#include<stdlib.h>
+#include<unistd.h>
+#include<string.h>
+#include<sys/types.h>
+#include<sys/wait.h>
+
+int main() {
+        pid_t pid1, pid2;
+        int pipe1[2], pipe2[2];
+        int wait1, wait2;
+        pipe(pipe1);
+        pipe(pipe2);
+
+        if((pid1 = fork())== 0) // buka daftar file
+        {
+                close(pipe1[0]);
+                dup2(pipe1[1], STDOUT_FILENO);//output ls disimpan di pipe 1 write, STDOUT=1
+                char *argv[] = {"ls", NULL};
+                execv("/bin/ls", argv);
+        }
+
+        else
+        {
+                while((wait(&wait1)) > 0);
+                if((pid2 = fork())== 0) //diambil file 3 baris paling atas
+                {
+                        close(pipe1[1]);
+                        dup2(pipe1[0], STDIN_FILENO);// output ls dijadikan input, STDIN=0
+                        close(pipe1[0]);
+                        dup2(pipe2[1], STDOUT_FILENO);//output head disimpan di pipe 2 write
+                        char *argv[] = {"head", "-n 3", NULL};
+                        execv("/usr/bin/head", argv);
+                }
+                else
+                {
+                        while((wait(&wait2)) >0); // dari 3 baris teratas tadi diambil 1 paling bawah
+                        close(pipe2[1]);
+                        dup2(pipe2[0], STDIN_FILENO);//output head jadi input
+                        char *argv[] = {"tail", "-n 1", NULL};
+                        execv("/usr/bin/tail", argv);
+                }
+        }
+        return 0;
+}
+```
+
+##### Penjelasan
+* Kita disini menggunakan 2 pipe yang terdiri dari 1 dan 0, 1 untuk output sedangkan 0 untuk input. kami disini juga menggunakan wait agar program berjalan secara berurutan, artinya program kedua akan berjalan jika program pertama sudah selesai.
+
+```javacsript
+if((pid1 = fork())== 0) // buka daftar file
+        {
+                close(pipe1[0]);
+                dup2(pipe1[1], STDOUT_FILENO);//output ls disimpan di pipe 1 write, STDOUT=1
+                char *argv[] = {"ls", NULL};
+                execv("/bin/ls", argv);
+```
+* Source code diatas digunakan untuk membuka daftar file dengan perintah `ls` kemudian output dari ls tersebut disimpan di pipe yang pertama yang 1 untuk menyimpan outputnya dan akan digunakan sebagai inputan di proses berikutnya.
+
+```javascript
+else
+        {
+                while((wait(&wait1)) > 0);
+                if((pid2 = fork())== 0) //diambil file 3 baris paling atas
+                {
+                        close(pipe1[1]);
+                        dup2(pipe1[0], STDIN_FILENO);// output ls dijadikan input, STDIN=0
+                        close(pipe1[0]);
+                        dup2(pipe2[1], STDOUT_FILENO);//output head disimpan di pipe 2 write
+                        char *argv[] = {"head", "-n 3", NULL};
+                        execv("/usr/bin/head", argv);
+                }
+```
+* Menggunakan wait agar proses kedua bisa berjalan jika proses pertama sudah selesai. Kemudian pada proses ini kita mengambil input dari output proses sebelumnya melalui pipe pertama yang 0. Kemudian agar dari daftar file tersebut yang kita ambil bisa hanya 3 saja yang diambil yaitu dengan menggunakan `head -n 3` kemudian output head disimpan di pipe dua yang write(1) agar bisa digunakan untuk input proses selanjutnya.
+
+```javascript
+else
+                {
+                        while((wait(&wait2)) >0); // dari 3 baris teratas tadi diambil 1 paling bawah
+                        close(pipe2[1]);
+                        dup2(pipe2[0], STDIN_FILENO);//output head jadi input
+                        char *argv[] = {"tail", "-n 1", NULL};
+                        execv("/usr/bin/tail", argv);
+                }
+```
+* Menggunakan wait agar proses ketiga bisa berjalan jika proses kedua sudah selesai. Kemudian pada soal kan kita diminta untuk menampilkan file yang ada di urutan ketiga, itu berarti kita hanya mengambil 1 file saja diurutan terakhir berdasarkan output dari proses dua tadi, berarti kita mengambil file yang paling bawah yaitu dengan `tail -n 1`.
 
 ## SoalShift_modul3_F01
 
