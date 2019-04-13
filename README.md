@@ -1578,6 +1578,8 @@ G. Pastikan terminal hanya mendisplay status detik ini sesuai scene terkait (hin
 
 #### Jawaban
 kodingan 1 soal5penjual.c
+	
+	
 	#include <stdio.h>
 	#include <termios.h>
 	#include <unistd.h>
