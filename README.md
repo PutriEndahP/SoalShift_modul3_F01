@@ -926,15 +926,13 @@ Contoh:
     5! = 120
 
 #### Jawaban
-```javascript
 	#include<stdio.h>
-	#include<string.h>
 	#include<pthread.h>
 	#include<stdlib.h>
-	#include<unistd.h>
-	#include<sys/types.h>
-	#include<sys/wait.h>
 
+	int fac[100];
+	int hasil[100];
+	int x=0;
 	int sort(const void * a, const void * b) {
 	   return ( *(int*)a - *(int*)b );
 	}
@@ -945,29 +943,40 @@ Contoh:
 		while(an>0){
 		f=f*an; an=an-1;
 		}
-		printf("%d!= %d\n", ab, f);
-	       }
+		fac[x]=ab;
+		hasil[x]=f;
+		x++;
+	      }
 	int main(int argc, char** argv)
 	{
 	    int angka[100];
 	    for (int i = 1; i < argc; ++i)
 		angka[i-1]=atoi(argv[i]);
-	    qsort(angka,argc-1,sizeof(int),sort);
 
+	    pthread_t tid[100];
 	    for(int i=0; i < argc-1; i++){
-		pthread_t tid;
-		pthread_create(&tid,NULL,fakt,&angka[i]);
-		pthread_join(tid,NULL);
+		pthread_create(&tid[i],NULL,fakt,&angka[i]);
+
+		}
+	    for(int i=0; i < argc-1; i++){
+		pthread_join(tid[i],NULL);
+
+		}
+	    qsort(fac,argc-1,sizeof(int),sort);
+	    qsort(hasil,argc-1,sizeof(int),sort);
+	    for(int i=0; i < argc-1; i++){
+		printf("%d!= %d\n", fac[i], hasil[i]);
 
 		}
 
-
 	    return 0;
 	}
-```
+
+
+
 
 #### Penjelasan
-Di line 41 terdapat parameter yang digunakan untuk menampung argumen. Line 42-43 untuk mengubah argumen ke dalam bentuk tipe data int. Line 44 digunakan untuk menyortir argumen dari kecil ke yang terbesar melalui fungsi sort yang terdapat pada line 27-29. Di line 46 terdapat looping yang digunakan untuk mengakses fungsi fakt untuk perhitungan faktorial dan terdapat thread join yang digunakan agar proses berjalan bergantian.
+Terdapat parameter yang digunakan untuk menampung argumen di dalam main yaitu argc dan argv. Untuk mengubah argumen ke dalam bentuk tipe data int terdapat syntax atoi yang ditampung di array angka[i-1]. Berikutnya terdapat looping yang di dalamnya terdapat thread yang mengakses perhitungan dalam fungsi fakt. Thread tersebut sudah menghitung semua inputan yang di inputkan yang tertampung dalam fac[x] untuk angka yang akan difaktorialkan dan hasil[x] untuk hasil faktorialnya. Setelah thread berjalan sesuai jumlah inputan dan sudah dihitung maka selanjutnya masuk ke qsort untuk mengurutkan array fac[] dan array hasil[] dari yang terkecil ke yang terbesar. Sebelum itu terdapat thread join untuk menunggu semua proses berjalan. Yang terakhir looping untuk mengeprint hasilnya.
 
 ### Soal 2
 Pada suatu hari ada orang yang ingin berjualan 1 jenis barang secara private, dia memintamu membuat program C dengan spesifikasi sebagai berikut:
