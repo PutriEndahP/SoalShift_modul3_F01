@@ -814,7 +814,91 @@ Buatlah sebuah program multithreading yang dapat menampilkan bilangan prima dari
 misalkan N = 100 dan T=2; jadi thread 1 akan mencari bilangan prima dari 1-50 dan thread 2 akan mencari dari 51-100
 
 ##### Jawaban Latihan 2
+	#include<stdio.h>
+	#include<string.h>
+	#include<pthread.h>
+	#include<math.h>
+	#include<stdlib.h>
+	#include<unistd.h>
+	#include<sys/types.h>
+	#include<sys/wait.h>
+	//compile nambahin -lm dibelakang
+	pthread_t tid[100];
+	int n, t, bnyk, status;
 
+	void Alg(int aw, int ak){
+		int p, A[1000], j;
+		for(p=2; p<=ak; p++){
+			if(p == 1){continue;}
+			A[p] = p;
+		} 
+		for(p=2; p<=floor(sqrt(ak)); p++){
+			if(p ==1){continue;}
+			if(A[p]!=0){
+				j = p*p;
+				while(j <= n){
+					A[j] = 0;
+					j = j + p;
+				}
+			}
+		}
+		bnyk = 0;
+		for(p=2; p<=ak; p++){
+			if(p ==1){continue;}
+			if(A[p] != 0){
+				//L[bnyk] = A[p];
+				if((A[p] >= aw) && (A[p] <= ak)){
+				printf("%d\n", A[p]);}
+			}
+		} 
+		return;
+	}
+
+	void* prima(void *arg){
+		pthread_t id = pthread_self();
+		int j;
+
+
+		for(j=0; j<t; j++){
+			if(pthread_equal(id,tid[j])){
+				while(status!=j);
+				int aw, ak, sisa = n % t;
+				aw = (j * (n/t))+1;
+				if((j+1) <= sisa){
+					ak = aw + (n/t);
+				}else{
+					ak = aw + (n/t) - 1;
+				}
+				printf("thread %d\n",j+1);
+				Alg(aw,ak);
+				int k;
+				status++;
+			}
+		}
+	}
+
+	int main(){
+		int i,err;
+		printf("batas bilangan : ");
+		scanf("%d", &n);
+		printf("banyak thread : ");
+		scanf("%d", &t);
+		status = 0;
+		for(i = (t-1); i >=0 ; i--){
+			err=pthread_create(&(tid[i]),NULL,prima,NULL); //membuat thread
+			if(err!=0) //cek error
+			{
+				printf("\n can't create thread : [%s]",strerror(err));
+			}
+			else
+			{
+				//printf("\n create thread success\n");
+			}
+		}
+		for(i = (t-1); i >=0 ; i--){
+			pthread_join(tid[i],NULL);
+		}
+	}
 #### Latihan 3
 Buatlah sebuah program untuk menampilkan file diurutan ketiga dari sebuah direktori. Dengan ketentuan :  
 - menggunakan pipe.
