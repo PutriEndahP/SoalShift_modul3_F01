@@ -1091,8 +1091,423 @@ h) Menggunakan thread, socket, shared memory
 
 #### Jawaban 
 
+* Souce code Server Jual :
+```javascript
+#include <stdio.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <arpa/inet.h>
+
+// define port yang akan digunakan
+#define PORT 9999
+
+// thread id
+pthread_t tid[100];
+
+// global var
+int *stock;
+int new_socket;
+char message_buffer[1024] = {0};
+
+void* check_message(void* arg) {
+  // jika server menerima message tambah dari client, maka stock ditambah 1
+  if (strcmp(message_buffer, "tambah") == 0) *stock+=1;
+
+  // kosongkan message_buffer
+  memset(message_buffer, 0, 1024);
+
+  return NULL;
+}
+
+void* print_current_stock(void* arg){
+  // cetak stock setiap 5 detik
+  while(1){
+    printf("stock: %d\n",*stock);
+    sleep(5);
+  }
+}
+
+int main (int argc, char const *argv[]){
+  // get ip address
+  struct sockaddr_in address;
+  // panjang address
+  int addrlen = sizeof(address);
+  int opt = 1;
+  int server_jual, valread;
+
+  // init stock on share mem
+  key_t key=4321;
+  int shmid = shmget(key, sizeof(int), IPC_CREAT | 0666);
+  stock = shmat(shmid, NULL, 0);
+  *stock = 0;
+
+  // init server status on share mem
+  key_t key2 = 1234;
+  int *server_jual_status;
+  int shmid2 = shmget(key2, sizeof(int), IPC_CREAT | 0666);
+  server_jual_status = shmat(shmid2, NULL, 0);
+  *server_jual_status=0;
+
+  // create thread untuk print
+  pthread_create(&(tid[0]),NULL,print_current_stock,NULL);
+
+  // create socket server_jual
+  if ((server_jual = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+    perror("socket failed");
+    exit(EXIT_FAILURE);
+  }
+
+  // set server jual untuk menerima multiple connection
+  if (setsockopt(server_jual, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+    perror("setsockopt");
+    exit(EXIT_FAILURE);
+  }
+
+  // type of socket created 
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = INADDR_ANY;
+  address.sin_port = htons( PORT );
+
+  // buka socket di localhost dengan port 8888
+  if (bind(server_jual, (struct sockaddr *)&address, sizeof(address))<0) {
+    perror("bind failed");
+    exit(EXIT_FAILURE);
+  }
+  printf("Listener on port %d \n", PORT);
+
+  // try to specify maximum of 3 pending connections for the master socket  
+  if (listen(server_jual, 3) < 0){   
+    perror("listen"); 
+    exit(EXIT_FAILURE);
+  }
+
+  // accept the incoming connection  
+  puts("Waiting for connections ...");
+
+  // accept only one connection
+  if ((new_socket = accept(server_jual, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) {
+    perror("accept");
+    exit(EXIT_FAILURE);
+  }
+  else {
+    // tell other that server has connection
+    *server_jual_status=1;
+  }
+
+  //inform user of socket number - used in send and receive commands  
+  printf("New connection , socket fd is %d , ip is : %s , port : %d\n" , new_socket , inet_ntoa(address.sin_addr) , PORT);
+
+  int index=1;
+  while(1){
+    valread = read( new_socket , message_buffer, 1024);
+    if (valread == 0){ 
+      printf("Client disconnected , ip %s , port %d \n", inet_ntoa(address.sin_addr) , PORT);           
+      close( new_socket );
+      exit(EXIT_FAILURE);
+    }
+    else {
+      pthread_create(&(tid[index]),NULL,check_message,NULL);
+      pthread_join(tid[index],NULL);
+      index++;
+    }
+  }
+
+  return 0;
+}
+```
+* Source code Server Beli :
+```javascript
+#include <stdio.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <arpa/inet.h>
+
+// define port yang akan digunakan
+#define PORT 8888
+
+// thread id
+pthread_t tid[100];
+
+// global var
+int *stock;
+int new_socket;
+char message_buffer[1024] = {0};
+
+void* check_message(void* arg) {
+  char *pesangagal = "transaksi gagal";
+  char *pesansukses = "transaksi berhasil";
+  char *pesangagal1 = "perintah salah";
+
+  if(strcmp(message_buffer,"beli")==0){
+    if(*stock > 0){
+      *stock = *stock - 1;
+      printf("%s\n",pesansukses);
+      send(new_socket , pesansukses , strlen(pesansukses) , 0 );
+    }
+    else{
+      printf("%s\n",pesangagal);
+      send(new_socket , pesangagal , strlen(pesangagal) , 0 );
+    }
+  }
+  else{
+    printf("%s\n",pesangagal1);
+    send(new_socket , pesangagal1 , strlen(pesangagal1) , 0 );
+  }
+
+  // kosongkan message_buffer
+  memset(message_buffer, 0, 1024);
+
+  return NULL;
+}
+
+int main (int argc, char const *argv[]){
+  // get ip address
+  struct sockaddr_in address;
+  // panjang address
+  int addrlen = sizeof(address);
+  int opt = 1;
+  int server_beli, valread;
+
+  // init stock on share mem
+  key_t key=4321;
+  int shmid = shmget(key, sizeof(int), IPC_CREAT | 0666);
+  stock = shmat(shmid, NULL, 0);
+
+  // init server status on share mem
+  key_t key2 = 5678;
+  int *server_beli_status;
+  int shmid2 = shmget(key2, sizeof(int), IPC_CREAT | 0666);
+  server_beli_status = shmat(shmid2, NULL, 0);
+  *server_beli_status=0;
+
+  // create socket server_beli
+  if ((server_beli = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+    perror("socket failed");
+    exit(EXIT_FAILURE);
+  }
+
+  // set server jual untuk menerima multiple connection
+  if (setsockopt(server_beli, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+    perror("setsockopt");
+    exit(EXIT_FAILURE);
+  }
+
+  // type of socket created 
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = INADDR_ANY;
+  address.sin_port = htons( PORT );
+
+  // buka socket di localhost dengan port 8888
+  if (bind(server_beli, (struct sockaddr *)&address, sizeof(address))<0) {
+    perror("bind failed");
+    exit(EXIT_FAILURE);
+  }
+  printf("Listener on port %d \n", PORT);
+
+  // try to specify maximum of 3 pending connections for the master socket  
+  if (listen(server_beli, 3) < 0){   
+      perror("listen");   
+      exit(EXIT_FAILURE);   
+  }
+
+  // accept the incoming connection  
+  puts("Waiting for connections ...");
+
+  // accept only one connection
+  if ((new_socket = accept(server_beli, (struct sockaddr *)&address, (socklen_t*)&addrlen))<0) {
+    perror("accept");
+    exit(EXIT_FAILURE);
+  }
+  else {
+    // tell other that server has connection
+    *server_beli_status=1;
+  }
+
+  //inform user of socket number - used in send and receive commands  
+  printf("New connection , socket fd is %d , ip is : %s , port : %d\n" , new_socket , inet_ntoa(address.sin_addr) , ntohs(address.sin_port));
+
+  int index=1;
+  while(1){
+    valread = read( new_socket , message_buffer, 1024);
+    if (valread == 0){ 
+      printf("Client disconnected , ip %s , port %d \n", inet_ntoa(address.sin_addr) , PORT);           
+      close( new_socket );
+      exit(EXIT_FAILURE);
+    }
+    else {
+      pthread_create(&(tid[index]),NULL,check_message,NULL);
+      pthread_join(tid[index],NULL);
+      index++;
+    }
+  }
+  
+  return 0;
+}
+```
+* Souse code Client Jual :
+```javascript
+#include <stdio.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+// define port yang akan digunakan
+#define PORT 9999
+
+// define ip ddress yang akan digunakan
+#define IP_ADDR "127.0.0.1"
+  
+int main(int argc, char const *argv[]) {
+  struct sockaddr_in address;
+  int sock = 0, valread;
+  struct sockaddr_in serv_addr;
+  char buffer[1024] = {0};
+
+  // create socket
+  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    printf("\n Socket creation error \n");
+    return -1;
+  }
+  
+  // check if server_jual_status has connection
+  key_t key2 = 1234;
+  int *server_jual_status;
+  int shmid2 = shmget(key2, sizeof(int), IPC_CREAT | 0666);
+  server_jual_status = shmat(shmid2, NULL, 0);
+
+  if (*server_jual_status > 0){
+    printf("Server Sibuk :(\n");
+    return 0;
+  }
+
+  memset(&serv_addr, '0', sizeof(serv_addr));
+
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_port = htons(PORT);
+    
+  if(inet_pton(AF_INET, IP_ADDR, &serv_addr.sin_addr)<=0) {
+    printf("\nInvalid address/ Address not supported \n");
+    return -1;
+  }
+
+  int stat= connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+  if (stat < 0 ) {
+    printf("\nConnection Failed \n");
+    return -1;
+  }
+  else {
+    printf("\nConnection Success \n");
+  }
+
+  char string[100];
+  while(1){
+    memset(string, 0, 100);
+    scanf("%s",string);
+    send(sock , string , strlen(string) , 0 );
+  }
+  
+  return 0;
+}
+```
+* Source code Client Beli :
+```javascript
+#include <stdio.h>
+#include <sys/socket.h>
+#include <stdlib.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+// define port yang akan digunakan
+#define PORT 8888
+
+// define ip ddress yang akan digunakan
+#define IP_ADDR "127.0.0.1"
+
+int main(int argc, char const *argv[]) {
+  struct sockaddr_in address;
+  int sock = 0, valread;
+  struct sockaddr_in serv_addr;
+  char *hello = "Hello from client";
+  char buffer[1024] = {0};
+
+  // create socket
+  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    printf("\n Socket creation error \n");
+    return -1;
+  }
+
+  // check if server_jual_status has connection
+  key_t key2 = 5678;
+  int *server_jual_status;
+
+  int shmid2 = shmget(key2, sizeof(int), IPC_CREAT | 0666);
+  server_jual_status = shmat(shmid2, NULL, 0);
+
+  if (*server_jual_status > 0){
+    printf("Server Sibuk :(\n");
+    return 0;
+  }
+
+  memset(&serv_addr, '0', sizeof(serv_addr));
+
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_port = htons(PORT);
+    
+  if(inet_pton(AF_INET, IP_ADDR, &serv_addr.sin_addr)<=0) {
+    printf("\nInvalid address/ Address not supported \n");
+    return -1;
+  }
+
+  if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+    printf("\nConnection Failed \n");
+    return -1;
+  }
+  else {
+    printf("\nConnection Success \n");
+  }
+  char string[100];
+  
+  while(1){
+    memset(string, 0, 100);
+    scanf("%s",string);
+    send(sock , string , strlen(string) , 0 );
+    valread = read( sock , buffer, 1024);
+    printf("%s\n",buffer );
+    memset(buffer, 0, 1024);
+  }
+  
+  return 0;
+}
+```
 
 #### Penjelasan
+
+* Pada server jual menggunakan port 9999, sedangkan server beli dengan port 8888. Baik server jual maupun server beli sama sama mengakses alamat stock dimana dalam kondisi ini jika kita inputkan tambah pada server, maka stock akan bertambah 1, sebaliknya jika kita inputkan beli pada server beli, maka stock akan berkurang 1. Pada proses jual client jual hanya bisa memberikan input saja kemudian diberikan ke server jual, sedangkan pada client beli, dia bisa memberikan input an sekaligus membaca output dari server beli apakah transaksinya berhasil atau tidak.
+
+* Perintah pada soal satu server hanya bisa terkoneksi dengan satu client saja, apabila sudah ada satu client yang terhubung sedangkan ada client yang ingin terkoneksi kembali maka akan terdapat pesan eror pada client tersebut.
+
+![soal2](https://github.com/PutriEndahP/SoalShift_modul3_F01/blob/master/soal2/Screenshot%20from%202019-04-14%2004-59-56.png)
 
 ### Soal 3
 Agmal dan Iraj merupakan 2 sahabat yang sedang kuliah dan hidup satu kostan, sayangnya mereka mempunyai gaya hidup yang berkebalikan, dimana Iraj merupakan laki-laki yang sangat sehat,rajin berolahraga dan bangun tidak pernah kesiangan sedangkan Agmal hampir menghabiskan setengah umur hidupnya hanya untuk tidur dan ‘ngoding’. Dikarenakan mereka sahabat yang baik, Agmal dan iraj sama-sama ingin membuat satu sama lain mengikuti gaya hidup mereka dengan cara membuat Iraj sering tidur seperti Agmal, atau membuat Agmal selalu bangun pagi seperti Iraj. Buatlah suatu program C untuk menggambarkan kehidupan mereka dengan spesifikasi sebagai berikut:
@@ -1425,6 +1840,9 @@ pthread_create(&(tid1), NULL, ayotidur, NULL);
   pthread_join(tid6, NULL);
 
 ```
+
+![soal3](https://github.com/PutriEndahP/SoalShift_modul3_F01/blob/master/soal3/Screenshot%20from%202019-04-14%2005-08-15.png)
+
 ### Soal 4
 Buatlah sebuah program C dimana dapat menyimpan list proses yang sedang berjalan (ps -aux) maksimal 10 list proses. Dimana awalnya list proses disimpan dalam di 2 file ekstensi .txt yaitu  SimpanProses1.txt di direktori /home/Document/FolderProses1 dan SimpanProses2.txt di direktori /home/Document/FolderProses2 , setelah itu masing2 file di  kompres zip dengan format nama file KompresProses1.zip dan KompresProses2.zip dan file SimpanProses1.txt dan SimpanProses2.txt akan otomatis terhapus, setelah itu program akan menunggu selama 15 detik lalu program akan mengekstrak kembali file KompresProses1.zip dan KompresProses2.zip 
 Dengan Syarat : 
@@ -1583,6 +2001,8 @@ char command_delete0[100];
 kami menggunakan system untuk memanggil suatu fungsi agar lebih mudah.
 
 * Kemudian kami menggunakan fungsi-fungsi seperti biasa dengan struktur yang sama untuk fungsi lainnya dengan tetap menggunakan system. Program akan berhenti selama 15 detik kemudian akan melanjutkan mengerjakan fungsi berikutnya yaitu unzip.
+
+![soal4](https://github.com/PutriEndahP/SoalShift_modul3_F01/blob/master/soal4/Screenshot%20from%202019-04-14%2005-09-36.png)
 
 ### Soal 5
 Angga, adik Jiwang akan berulang tahun yang ke sembilan pada tanggal 6 April besok. Karena lupa menabung, Jiwang tidak mempunyai uang sepeserpun untuk membelikan Angga kado. Kamu sebagai sahabat Jiwang ingin membantu Jiwang membahagiakan adiknya sehingga kamu menawarkan bantuan membuatkan permainan komputer sederhana menggunakan program C. Jiwang sangat menyukai idemu tersebut. Berikut permainan yang Jiwang minta.
